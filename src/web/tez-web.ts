@@ -509,7 +509,7 @@ export default class Sotez extends AbstractTezModule implements TezInterface {
    *   }
    * }).then(({ opbytes, opOb, counter }) => console.log(opbytes, opOb, counter));
    */
-  prepareOperation = ({ operation }: OperationParams): Promise<ForgedBytes> => {
+  prepareOperation = ({ from, operation }: OperationParams): Promise<ForgedBytes> => {
     let counter;
     const opOb: OperationObject = {};
     const promises: any[] = [];
@@ -525,7 +525,7 @@ export default class Sotez extends AbstractTezModule implements TezInterface {
       ops = [operation];
     }
 
-    const publicKeyHash = this.key.publicKeyHash();
+    const publicKeyHash = from || this.key.publicKeyHash();
 
     for (let i = 0; i < ops.length; i++) {
       if (['transaction', 'origination', 'delegation'].includes(ops[i].kind)) {
@@ -664,7 +664,12 @@ export default class Sotez extends AbstractTezModule implements TezInterface {
    *
    * sotez.sendOperation({ operation: [operation, operation] }).then(result => console.log(result));
    */
-  sendOperation = async ({ operation, skipPrevalidation = false, skipSignature = false }: OperationParams): Promise<any> => {
+  sendOperation = async ({ 
+    from,
+    operation, 
+    skipPrevalidation = false, 
+    skipSignature = false 
+  }: OperationParams): Promise<any> => {
     const fullOp: ForgedBytes = await this.prepareOperation({ operation });
 
     if (this.key.isLedger) {
@@ -686,7 +691,7 @@ export default class Sotez extends AbstractTezModule implements TezInterface {
       fullOp.opOb.signature = signed.edsig;
     }
 
-    const publicKeyHash = this.key.publicKeyHash();
+    const publicKeyHash = from || this.key.publicKeyHash();
 
     if (skipPrevalidation) {
       return this.silentInject(fullOp.opbytes)
@@ -865,12 +870,13 @@ export default class Sotez extends AbstractTezModule implements TezInterface {
    * @returns {Promise} Object containing the injected operation hash
    */
   setDelegate = async ({
+    from,
     delegate,
     fee = this.defaultFee,
     gasLimit = 10000,
     storageLimit = 0,
   }: RpcParams): Promise<any> => {
-    const publicKeyHash = this.key.publicKeyHash();
+    const publicKeyHash = from || this.key.publicKeyHash();
     const operation = {
       kind: 'delegation',
       fee,
@@ -878,7 +884,7 @@ export default class Sotez extends AbstractTezModule implements TezInterface {
       storage_limit: storageLimit,
       delegate: (typeof delegate !== 'undefined' ? delegate : publicKeyHash),
     };
-    return this.sendOperation({ operation: [operation] });
+    return this.sendOperation({ from, operation: [operation] });
   }
 
   /**

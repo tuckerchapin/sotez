@@ -289,6 +289,7 @@ export interface Forge {
 }
 
 export interface OperationParams {
+  from?: string;
   operation: Operation[];
   skipPrevalidation?: boolean;
   skipSignature?: boolean;
