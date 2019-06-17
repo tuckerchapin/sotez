@@ -275,6 +275,7 @@ declare module "types/index" {
         op: (cOp: ConstructedOperation) => string;
     }
     export interface OperationParams {
+        from?: string;
         operation: Operation[];
         skipPrevalidation?: boolean;
         skipSignature?: boolean;
@@ -831,7 +832,7 @@ declare module "web/tez-web" {
          *   }
          * }).then(({ opbytes, opOb, counter }) => console.log(opbytes, opOb, counter));
          */
-        prepareOperation: ({ operation }: OperationParams) => Promise<ForgedBytes>;
+        prepareOperation: ({ from, operation }: OperationParams) => Promise<ForgedBytes>;
         /**
          * @description Simulate an operation
          * @param {Object} paramObject The parameters for the operation
@@ -870,7 +871,7 @@ declare module "web/tez-web" {
          *
          * sotez.sendOperation({ operation: [operation, operation] }).then(result => console.log(result));
          */
-        sendOperation: ({ operation, skipPrevalidation, skipSignature }: OperationParams) => Promise<any>;
+        sendOperation: ({ from, operation, skipPrevalidation, skipSignature }: OperationParams) => Promise<any>;
         /**
          * @description Inject an operation
          * @param {Object} opOb The operation object
@@ -938,7 +939,7 @@ declare module "web/tez-web" {
          * @param {Number} [paramObject.storageLimit=0] The storage limit to set for the transaction
          * @returns {Promise} Object containing the injected operation hash
          */
-        setDelegate: ({ delegate, fee, gasLimit, storageLimit, }: RpcParams) => Promise<any>;
+        setDelegate: ({ from, delegate, fee, gasLimit, storageLimit, }: RpcParams) => Promise<any>;
         /**
          * @description Register an account as a delegate
          * @param {Object} paramObject The parameters for the operation
